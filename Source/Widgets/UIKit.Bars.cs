@@ -35,7 +35,10 @@ namespace RadiusUI.Framework
         {
             if (!FrameGate.Drawing || r.width < 2f || r.height < 1f) return;
 
-            Spatial.Pill(r, Palette.Surface0);
+            // Surface3 is the token whose stated meaning is "bar tracks and insets". Surface0 is
+            // the page, and a track drawn in it is invisible on any recessed tray - which made a
+            // small fill read as a stray floating pill rather than as a bar with a value in it.
+            Spatial.Pill(r, Palette.Surface3);
 
             float limit = Mathf.Max(0.0001f, max);
             float frac = Mathf.Clamp(value / limit, -1f, 1f);
