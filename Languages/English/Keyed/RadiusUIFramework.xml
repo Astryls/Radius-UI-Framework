@@ -26,6 +26,9 @@
   <RadiusUI.Settings.RefreshTip>How often Radius UI mods refresh background data like colony vitals and conditions. Higher values refresh less often and cost less frame time, which helps on a large colony. Readouts you are actively watching are not affected.</RadiusUI.Settings.RefreshTip>
   <RadiusUI.Settings.Reset>Reset to defaults</RadiusUI.Settings.Reset>
 
+  <!-- Widgets -->
+  <RadiusUI.Field.ClearTip>Clear the text.</RadiusUI.Field.ClearTip>
+
   <!-- Accent names -->
   <RadiusUI.Accent.Sky>sky</RadiusUI.Accent.Sky>
   <RadiusUI.Accent.Gold>gold</RadiusUI.Accent.Gold>

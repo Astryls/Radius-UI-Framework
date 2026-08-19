@@ -77,6 +77,16 @@ namespace RadiusUI.Framework
         /// <summary>Pressed/selected wash. Alias of <see cref="WashStrong"/> (14%).</summary>
         public static readonly Color ActiveWash = WashStrong;
 
+        /// <summary>
+        /// Bookmark / pinned-by-the-player marker. Yellow, and deliberately NOT a member of
+        /// the Good/Warn/Bad ramp: pinning is a user CHOICE, not a severity, and a pinned row
+        /// tinted with Warn reads as "this quest is in trouble". Also not the accent, which is
+        /// already spoken for by selection.
+        /// <para>Added 2026-08-18 for Radius UI - Quest Menu pins; general-purpose for any
+        /// suite mod that needs a "marked by the player" state.</para>
+        /// </summary>
+        public static readonly Color Pin = new Color(1.00f, 0.84f, 0.32f);
+
         // ------------------------------------------------------------------ text
 
         /// <summary>Primary text - the ink Radius UI writes with. #e8eaed</summary>

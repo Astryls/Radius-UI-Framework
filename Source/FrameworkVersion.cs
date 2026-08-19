@@ -42,8 +42,9 @@ namespace RadiusUI.Framework
         ///     structs (TaggedString) for T=string; Throttle gains EveryTicks.
         ///     Additive within gen 3 (2026-08-18 compliance pass, no bump - an older consumer
         ///     keeps working): Widgets/UIKit (Button/IconButton/TagPill/SectionBar),
-        ///     RadiusFont.Epoch, Perf/StaggeredScheduler, Perf/FrameProbe. A consumer that
-        ///     USES those must require 3.</para>
+        ///     RadiusFont.Epoch, Perf/StaggeredScheduler, Perf/FrameProbe, Palette.Pin
+        ///     (player-marked/bookmark yellow, deliberately outside the Good/Warn/Bad ramp).
+        ///     A consumer that USES those must require 3.</para>
         /// </summary>
         public const int Current = 3;
 
