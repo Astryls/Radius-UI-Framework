@@ -39,7 +39,11 @@ namespace RadiusUI.Framework
         ///     become same-value aliases; HoverWash RE-VALUED .05 -> .10 to the ladder step -
         ///     the value behind a name changed, hence the bump. Also: ModCompat.IsActive
         ///     recognises Workshop "_steam"-suffixed ids; ModCompat.StaticValue coerces boxed
-        ///     structs (TaggedString) for T=string; Throttle gains EveryTicks.</para>
+        ///     structs (TaggedString) for T=string; Throttle gains EveryTicks.
+        ///     Additive within gen 3 (2026-08-18 compliance pass, no bump - an older consumer
+        ///     keeps working): Widgets/UIKit (Button/IconButton/TagPill/SectionBar),
+        ///     RadiusFont.Epoch, Perf/StaggeredScheduler, Perf/FrameProbe. A consumer that
+        ///     USES those must require 3.</para>
         /// </summary>
         public const int Current = 3;
 

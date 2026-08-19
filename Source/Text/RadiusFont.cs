@@ -46,6 +46,16 @@ namespace RadiusUI.Framework
             bool heading = false, Color? color = null,
             TextAnchor anchor = TextAnchor.UpperLeft, bool wrap = true)
         {
+            // Draw-pass gate (PERFORMANCE_PLAYBOOK B5): OnGUI runs ~1.9 passes per frame and
+            // only Repaint produces pixels. A label emits NO IMGUI control id, so skipping the
+            // other passes cannot shift control ids - it just halves the suite's text cost.
+            // Layout math lives at the CALL SITE and still runs on every pass, which is the
+            // invariant that makes this safe.
+            if (!FrameGate.Drawing)
+            {
+                return;
+            }
+
             font = Resolve(font);
             bool bold = heading && RadiusTheme.Bold;
             bool italic = RadiusTheme.Italic;
@@ -206,6 +216,10 @@ namespace RadiusUI.Framework
         public static void LabelBold(Rect rect, string text, GameFont font = GameFont.Small,
             Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, bool wrap = true)
         {
+            if (!FrameGate.Drawing)
+            {
+                return;   // see Label: labels emit no control id, so this is id-stable
+            }
             GUIStyle style = Style(font, bold: true);
             style.alignment = anchor;
             style.wordWrap = wrap;
@@ -243,12 +257,28 @@ namespace RadiusUI.Framework
             return style;
         }
 
+        /// <summary>
+        /// Increments whenever vanilla rebuilds its font styles - a font mod swapping faces,
+        /// or a LANGUAGE SWITCH. Consumers that cache derived TEXT (resolved descriptions,
+        /// composed tooltips, truncation results of their own) should store this value beside
+        /// the cache and drop the cache when it changes: text produced under the old language
+        /// is stale, and a stale string is invisible until a player notices the wrong words.
+        ///
+        /// <para>The framework's own metric cache (<see cref="TextMemo"/>) is already
+        /// invalidated here; this counter is the public signal for everything downstream.</para>
+        /// Cost: field read.
+        /// </summary>
+        public static int Epoch => epoch;
+
+        private static int epoch;
+
         private static void EnsureEpoch()
         {
             Font? small = Text.fontStyles[(int)GameFont.Small].font;
             Font? medium = Text.fontStyles[(int)GameFont.Medium].font;
             if (!ReferenceEquals(small, builtFromSmall) || !ReferenceEquals(medium, builtFromMedium))
             {
+                epoch++;
                 // Vanilla's styles were rebuilt (font mod, language switch): drop our copies
                 // AND every cached metric - measurements taken with the old face are wrong,
                 // and a stale metric is invisible until a layout drifts.

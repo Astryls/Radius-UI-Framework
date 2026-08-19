@@ -74,7 +74,13 @@ namespace RadiusUI.Framework
         /// </summary>
         public static bool RoundingAvailable => roundedAvailable;
 
-        private static bool RepaintNow => Event.current != null && Event.current.type == EventType.Repaint;
+        /// <summary>
+        /// Draw-pass gate. Delegates to <see cref="FrameGate.Drawing"/> rather than re-testing
+        /// <c>Event.current.type</c> locally: one idiom for one concept across the library
+        /// (GLOBAL_RULES §9 - RadiusIcon already routes through FrameGate, and a second
+        /// open-coded copy here is exactly the drift the Perf layer was extracted to end).
+        /// </summary>
+        private static bool RepaintNow => FrameGate.Drawing;
 
         // ------------------------------------------------------------------ fills
 
