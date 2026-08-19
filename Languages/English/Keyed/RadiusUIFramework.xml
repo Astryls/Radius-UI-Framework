@@ -25,7 +25,6 @@
   <RadiusUI.Settings.Refresh>Background refresh: {0}</RadiusUI.Settings.Refresh>
   <RadiusUI.Settings.RefreshTip>How often Radius UI mods refresh background data like colony vitals and conditions. Higher values refresh less often and cost less frame time, which helps on a large colony. Readouts you are actively watching are not affected.</RadiusUI.Settings.RefreshTip>
   <RadiusUI.Settings.Reset>Reset to defaults</RadiusUI.Settings.Reset>
-  <RadiusUI.Settings.PreviewCard>Preview card</RadiusUI.Settings.PreviewCard>
 
   <!-- Accent names -->
   <RadiusUI.Accent.Sky>sky</RadiusUI.Accent.Sky>
