@@ -6,7 +6,9 @@
 
 namespace RadiusUI.Framework
 {
-    public static class Metrics
+    // `partial` added generation 4 so additive members can land in NEW files rather than as edits
+    // to this one, per §13's concurrent-edit rule. No member here is touched.
+    public static partial class Metrics
     {
         // ------------------------------------------------------------------ radii
 

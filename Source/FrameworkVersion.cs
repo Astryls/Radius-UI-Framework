@@ -44,9 +44,25 @@ namespace RadiusUI.Framework
         ///     keeps working): Widgets/UIKit (Button/IconButton/TagPill/SectionBar),
         ///     RadiusFont.Epoch, Perf/StaggeredScheduler, Perf/FrameProbe, Palette.Pin
         ///     (player-marked/bookmark yellow, deliberately outside the Good/Warn/Bad ramp).
-        ///     A consumer that USES those must require 3.</para>
+        ///     A consumer that USES those must require 3.
+        /// 4 = Chrome/Spatial lands (2026-08-19, Radius UI - Social Tab session): procedural
+        ///     9-slice rounded surfaces, Well, Pill, Dot, Ring and neutral Elevate - the shape
+        ///     vocabulary CardChrome deliberately does not cover (§10 F1). Retires FOUR forks
+        ///     (Modern Social Tab, Modern Needs Tab, Colonist Bar, Health Tab). Also additive:
+        ///     Palette.Bond / Palette.Rift (social identity pair, outside the accent AND outside
+        ///     the semantic ramp), Palette.NameInk (a pawn name inside prose), UIKit.BiBar +
+        ///     UIKit.OpinionBar, Metrics.RowCompact (34) + Metrics.StripIdentity (44).
+        ///     UIKit and Metrics became `partial` so future additions land in new files.
+        ///
+        ///     NOTE ON THE BUMP. Every change at gen 4 is PURELY ADDITIVE, and the rule above
+        ///     says additive changes need no bump. It is bumped anyway, deliberately: the
+        ///     additions are large enough that a consumer needs a way to ASSERT their presence.
+        ///     Without a bump, a consumer using Spatial against an older gen-3 DLL gets a raw
+        ///     MissingMethodException - precisely the failure this class exists to turn into a
+        ///     sentence. No existing value or meaning changed, and every existing consumer
+        ///     (requiring 1, 2 or 3) still passes Require() unchanged.</para>
         /// </summary>
-        public const int Current = 3;
+        public const int Current = 4;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
