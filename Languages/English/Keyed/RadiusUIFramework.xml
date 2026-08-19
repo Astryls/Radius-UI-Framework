@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  English keys for the Radius UI Framework. Ships so keys resolve at runtime AND so
+  translators have a complete template to copy.
+
+  House style (GLOBAL_RULES §7):
+    - Vanilla sentence case. Only the first word and proper nouns are capitalised.
+    - No em dash and no en dash. A spaced hyphen, a comma or a full stop instead.
+    - No trailing period on a label; full stops only in sentences and tooltips.
+    - {0} placeholders are ordinal so translators can reorder freely.
+-->
+<LanguageData>
+
+  <RadiusUI.Framework.Title>Radius UI</RadiusUI.Framework.Title>
+
+  <!-- Theme -->
+  <RadiusUI.Settings.AccentHeading>Accent colour</RadiusUI.Settings.AccentHeading>
+  <RadiusUI.Settings.AccentCurrent>Every Radius UI mod uses {0}.</RadiusUI.Settings.AccentCurrent>
+  <RadiusUI.Settings.Bold>Bold headings</RadiusUI.Settings.Bold>
+  <RadiusUI.Settings.BoldTip>Draw headings in real bold. If your font has no bold face, headings stay regular rather than being smeared into a fake one.</RadiusUI.Settings.BoldTip>
+  <RadiusUI.Settings.Italic>Italic text</RadiusUI.Settings.Italic>
+  <RadiusUI.Settings.ItalicTip>Draw Radius UI text in italic.</RadiusUI.Settings.ItalicTip>
+  <RadiusUI.Settings.Roundness>Corner roundness: {0}</RadiusUI.Settings.Roundness>
+  <RadiusUI.Settings.RoundnessTip>How round the corners of cards and panels are. Set it to zero for square corners.</RadiusUI.Settings.RoundnessTip>
+  <RadiusUI.Settings.Refresh>Background refresh: {0}</RadiusUI.Settings.Refresh>
+  <RadiusUI.Settings.RefreshTip>How often Radius UI mods refresh background data like colony vitals and conditions. Higher values refresh less often and cost less frame time, which helps on a large colony. Readouts you are actively watching are not affected.</RadiusUI.Settings.RefreshTip>
+  <RadiusUI.Settings.Reset>Reset to defaults</RadiusUI.Settings.Reset>
+  <RadiusUI.Settings.PreviewCard>Preview card</RadiusUI.Settings.PreviewCard>
+
+  <!-- Accent names -->
+  <RadiusUI.Accent.Sky>sky</RadiusUI.Accent.Sky>
+  <RadiusUI.Accent.Gold>gold</RadiusUI.Accent.Gold>
+  <RadiusUI.Accent.Emerald>emerald</RadiusUI.Accent.Emerald>
+  <RadiusUI.Accent.Violet>violet</RadiusUI.Accent.Violet>
+  <RadiusUI.Accent.Crimson>crimson</RadiusUI.Accent.Crimson>
+  <RadiusUI.Accent.Teal>teal</RadiusUI.Accent.Teal>
+  <RadiusUI.Accent.Amber>amber</RadiusUI.Accent.Amber>
+  <RadiusUI.Accent.Rose>rose</RadiusUI.Accent.Rose>
+
+</LanguageData>

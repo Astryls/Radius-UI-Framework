@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModMetaData>
+  <name>Radius UI Framework</name>
+  <packageId>astryl.RadiusUI.Framework</packageId>
+  <author>astryl</author>
+  <description>[h1]◆ Radius UI Framework ◆[/h1]
+The shared foundation for the Radius UI suite. It carries the design language every Radius UI mod draws with: one colour set, one card and hover treatment, one scrolling widget and one icon family.
+
+This mod adds nothing on its own. Install it because a Radius UI mod asks for it.
+
+[h1]✦ What it provides[/h1]
+[list]
+[*][b]One colour set[/b]: a single good / warning / danger ramp and one accent colour, so every panel in the suite means the same thing by the same colour.
+[*][b]One accent, chosen once[/b]: pick your accent colour here and every Radius UI mod follows it.
+[*][b]One card style[/b]: the rounded card, border and hover wash that give the suite its look.
+[*][b]One icon family[/b]: the shared icon set, shipped once instead of copied into every mod.
+[/list]
+
+[h1]✦ Requirements[/h1]
+[list]
+[*][b]Harmony[/b] (brrainz.harmony).
+[/list]
+
+[hr][/hr]
+[i]Built for RimWorld 1.6. A library mod: no defs, no world state, settings only.[/i]</description>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+  </loadAfter>
+</ModMetaData>
