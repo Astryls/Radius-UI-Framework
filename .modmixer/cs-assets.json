@@ -1,5 +1,9 @@
 {
   "textures": [
+    "RadiusUI/Need/Recreation",
+    "RadiusUI/Need/Beauty",
+    "RadiusUI/Need/Comfort",
+    "RadiusUI/Need/Indoors",
     "RadiusUI/Action/Accept",
     "RadiusUI/Action/AcceptFor",
     "RadiusUI/Action/Apparel",
