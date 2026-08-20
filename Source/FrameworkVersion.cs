@@ -75,9 +75,35 @@ namespace RadiusUI.Framework
         ///         InkOnAccent, and swapping either way fails contrast.
         ///       Tokens/Palette.Needs.cs : Palette.Needs domain set (11 identities + an 8-hue
         ///         stable fallback ring keyed on defName, so a modded need gets a consistent,
-        ///         never-grey colour).</para>
+        ///         never-grey colour).
+        /// 6 = the radial vocabulary lands (2026-08-20, Radius UI - Gizmos session). PURELY
+        ///     ADDITIVE, same deliberate bump rationale as gen 4 and 5 - a consumer needs a way
+        ///     to ASSERT these exist rather than discover their absence as a raw
+        ///     MissingMethodException. Nothing existing was touched and no value moved.
+        ///       Chrome/Spatial.Arc.cs : Spatial.AnnulusSector + ArcStroke + AngleFromUp +
+        ///         InSector. The wedge - the one shape Spatial had no answer for and the only
+        ///         genuinely new drawing primitive the Gizmos mockup set asked for. ONE cached
+        ///         texture per SHAPE (inner ratio + sweep), rotated to its bearing, so a
+        ///         twelve-sector wheel is twelve draw calls off two or three textures rather
+        ///         than ~180 thin quads with double-composited seams. AngleFromUp/InSector ship
+        ///         WITH it so a consumer's hit test cannot drift from the drawn shape.
+        ///       Tokens/Palette.Commands.cs : the command-domain identity set (Combat/Abilities/
+        ///         Orders/Work/Social + Pinned/Dev/Status aliases + an 8-hue stable fallback ring
+        ///         keyed on category id). Exists because all five Gizmos studies were borrowing
+        ///         Palette.Health and Palette.Needs identities to colour a command by domain -
+        ///         tokens that answer a DIFFERENT question, so the day the health domain retunes
+        ///         its purple every command wheel in the suite would silently follow. Values
+        ///         currently coincide with those hues by design lineage; the two sets are now
+        ///         free to move independently, which is the point.
+        ///       Chrome/SizeAnim.cs : frame-rate independent panel size easing, advanced AT MOST
+        ///         ONCE PER FRAME through FrameGate. Third occurrence (Inspector pane height, HUD
+        ///         card fold, Gizmos drawer collapsing in both axes). The once-per-frame rule is
+        ///         the whole point: a layout getter is evaluated several times per frame, and an
+        ///         animation that advances on every call lets two calls in one frame disagree -
+        ///         which strands "settled" forever and presents as a blank panel with no
+        ///         exception in the log.</para>
         /// </summary>
-        public const int Current = 5;
+        public const int Current = 6;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
