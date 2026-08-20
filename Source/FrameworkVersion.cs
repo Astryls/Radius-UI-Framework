@@ -60,9 +60,24 @@ namespace RadiusUI.Framework
         ///     Without a bump, a consumer using Spatial against an older gen-3 DLL gets a raw
         ///     MissingMethodException - precisely the failure this class exists to turn into a
         ///     sentence. No existing value or meaning changed, and every existing consumer
-        ///     (requiring 1, 2 or 3) still passes Require() unchanged.</para>
+        ///     (requiring 1, 2 or 3) still passes Require() unchanged.
+        /// 5 = the alert-band vocabulary lands (2026-08-19, Radius UI - Needs Tab session).
+        ///     PURELY ADDITIVE, same deliberate bump rationale as gen 4 - a consumer needs a way
+        ///     to ASSERT these exist rather than discover their absence as a raw
+        ///     MissingMethodException. Nothing existing was touched and no value moved.
+        ///       Chrome/Spatial.Bands.cs : Spatial.BottomBand + Spatial.Glyph + Spatial.RCapsule.
+        ///         Retires a FOURTH fork - BottomBand existed in Health Tab (Chrome/Spatial.cs:86),
+        ///         Colonist Bar (McbSpatial.cs) and Modern Needs Tab (SpatialKit.cs:89). Spatial
+        ///         gains `partial`, exactly as UIKit and Metrics did at gen 4.
+        ///       Tokens/Palette.Bands.cs : BandCritical/Warning/Cold/Info + BandInk/BandInkDim/
+        ///         BandDisc/BandDotIdle/BandProgress. The Colonist Bar band's OWN dark fill set,
+        ///         which is NOT the semantic ramp - these take white text, the ramp takes
+        ///         InkOnAccent, and swapping either way fails contrast.
+        ///       Tokens/Palette.Needs.cs : Palette.Needs domain set (11 identities + an 8-hue
+        ///         stable fallback ring keyed on defName, so a modded need gets a consistent,
+        ///         never-grey colour).</para>
         /// </summary>
-        public const int Current = 4;
+        public const int Current = 5;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.

@@ -44,7 +44,7 @@ namespace RadiusUI.Framework
     /// the main thread at load.</para>
     /// </summary>
     [StaticConstructorOnStartup]
-    public static class Spatial
+    public static partial class Spatial
     {
         // Corner radii matching the suite's spatial scale (xl 22 / lg 18 / md 14 / sm 10 / chip 6).
         private static readonly Texture2D CapsuleTex = MakeRounded(22);
