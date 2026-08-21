@@ -102,7 +102,17 @@ namespace RadiusUI.Framework
             try
             {
                 // Rotate to the sector's MIDLINE: the generated shape is centred on up.
-                GUIUtility.RotateAroundPivot(startDeg + sweepDeg * 0.5f, center);
+                //
+                // ⚠ Verse.UI.RotateAroundPivot, NOT GUIUtility.RotateAroundPivot. Unity's takes the
+                // pivot in SCREEN space; every rect and every Event.current.mousePosition in
+                // RimWorld is in GUI space, and the two differ by Prefs.UIScale. Vanilla's wrapper
+                // is literally `GUIUtility.RotateAroundPivot(angle, center * Prefs.UIScale)`.
+                // Passing a GUI-space pivot to Unity's version rotates about the wrong point, so
+                // the quad swings out on an arc proportional to its angle and the sectors scatter
+                // across the screen. It looks perfect at UI scale 1.0 and only breaks for players
+                // who changed it - and anything drawn WITHOUT the matrix (labels, icons) stays
+                // correctly placed, which makes it read as a shape bug rather than a matrix bug.
+                UI.RotateAroundPivot(startDeg + sweepDeg * 0.5f, center);
                 GUI.DrawTexture(rect, tex, ScaleMode.StretchToFill, true, 0f, color, 0f, 0f);
             }
             finally
