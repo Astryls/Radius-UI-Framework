@@ -68,6 +68,17 @@ namespace RadiusUI.Framework
         {
             if (!FrameGate.Drawing || r.width < 2f || r.height < 2f) return;
             if (!Rounded) { Widgets.DrawBoxSolid(r, c); return; }
+
+            // SMALL-RECT GUARD. DrawAtlas takes its corner slice as atlas.width/4 and clamps it to
+            // half the rect. When the rect is small enough that the corners meet, the edge strips
+            // have zero width and the 9-slice stretches curved, half-transparent pixels across the
+            // span - the exact failure MakeRounded's comment warns about. It reads as a dark ring
+            // or seam around small square plates (a 20x20 hover plate through RowPlate is precisely
+            // this). A stadium has no such degenerate case, so hand off to Pill, which is what the
+            // shape wants to be at that size anyway.
+            float corner = tex.width * 0.25f;
+            if (Mathf.Min(r.width, r.height) < corner * 2f + 2f) { Pill(r, c); return; }
+
             Color prev = GUI.color;
             GUI.color = c;
             Widgets.DrawAtlas(r, tex);
