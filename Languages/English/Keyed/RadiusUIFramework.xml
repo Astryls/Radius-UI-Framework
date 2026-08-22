@@ -11,6 +11,9 @@
 -->
 <LanguageData>
 
+  <!-- OrbitalSection: the widget draws the off-view chevron, so it owns the words for it -->
+  <RadiusUI.Orbital.OutsideView>Outside the view</RadiusUI.Orbital.OutsideView>
+
   <RadiusUI.Framework.Title>Radius UI</RadiusUI.Framework.Title>
 
   <!-- Theme -->
