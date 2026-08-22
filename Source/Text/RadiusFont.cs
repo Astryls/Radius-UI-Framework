@@ -231,6 +231,41 @@ namespace RadiusUI.Framework
             Text.Font = GameFont.Small;
         }
 
+        /// <summary>
+        /// Label in a real ITALIC face - the twin of <see cref="LabelBold"/>, for the one
+        /// job italic does well: marking a word as a different KIND of thing rather than a
+        /// more important one. A placeholder standing in for a value ("Structure" where a
+        /// list of capacities would otherwise be) reads as metadata in italic and as data in
+        /// regular, with no second colour spent on saying so.
+        ///
+        /// <para>Explicit weight, so it is NOT gated by the user's bold-headings flag - same
+        /// contract as LabelBold. It IS however additive with <c>RadiusTheme.Italic</c>: a
+        /// player who has turned the suite-wide italic option on sees everything italic and
+        /// loses the distinction. That degrades to "no emphasis", never to the wrong
+        /// emphasis, so it is not worth a second encoding to defend.</para>
+        ///
+        /// <para>Only a DYNAMIC font can resolve a real italic face; on a baked bitmap font
+        /// <see cref="StyleFor"/> falls back to regular rather than rendering a smeared
+        /// synthetic slant. Resets Anchor/WordWrap/GUI.color to engine defaults on exit.</para>
+        /// </summary>
+        public static void LabelItalic(Rect rect, string text, GameFont font = GameFont.Small,
+            Color? color = null, TextAnchor anchor = TextAnchor.UpperLeft, bool wrap = true)
+        {
+            if (!FrameGate.Drawing)
+            {
+                return;   // see Label: labels emit no control id, so this is id-stable
+            }
+            GUIStyle style = StyleFor(Resolve(font), bold: false, italic: true);
+            style.alignment = anchor;
+            style.wordWrap = wrap;
+            GUI.color = color ?? Palette.Ink;
+            GUI.Label(rect, text, style);
+            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.UpperLeft;
+            Text.WordWrap = true;
+            Text.Font = GameFont.Small;
+        }
+
         // ------------------------------------------------------------------ style cache
 
         private static GUIStyle StyleFor(GameFont font, bool bold, bool italic)
