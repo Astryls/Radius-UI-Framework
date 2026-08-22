@@ -9,6 +9,16 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <!-- PUBLISH_CHECKLIST 5/6: no debug symbols ship. OutputPath is ..\Assemblies\ for EVERY
+       configuration, so a Release build used to drop RadiusUI.Framework.pdb straight into the
+       folder that gets uploaded - inside a Keep folder, which is exactly how the checklist says
+       a .pdb ships by accident. .gitignore hides it (*.pdb), so it is invisible in git status
+       too. Setting DebugType none makes that structural rather than a manual delete each time.
+       Debug builds keep their symbols so stack traces still carry line numbers in development. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>

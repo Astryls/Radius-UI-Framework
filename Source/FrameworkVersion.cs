@@ -102,8 +102,46 @@ namespace RadiusUI.Framework
         ///         animation that advances on every call lets two calls in one frame disagree -
         ///         which strands "settled" forever and presents as a blank panel with no
         ///         exception in the log.</para>
+        ///
+        /// <para>7 = the World layer becomes ASSERTABLE (2026-08-21, Radius UI - Quest Menu
+        ///     session). PURELY ADDITIVE - nothing existing was touched and no value moved.
+        ///     `World/WorldSnapshot.cs` has physically existed since 2026-08-19 and was already
+        ///     consumed by Faction Menu (StagePane) and Ideology (spread plot), but it was never
+        ///     named in this history, so NO consumer could assert it. That is the same hole that
+        ///     shipped a crash to users four days ago: RadiusFont.Epoch landed additively inside
+        ///     generation 3, Quest Menu asserted 3, an early gen-3 framework passed the check and
+        ///     then threw
+        ///         MissingMethodException: Method not found: int RadiusFont.get_Epoch()
+        ///     about a hundred times a frame. Naming the layer and bumping is what makes the
+        ///     guard mean something.
+        ///       World/WorldSnapshot.cs : real baked terrain for a world-map view - Get() (the
+        ///         bake, overscan + quantized zoom ladder), Basis/Transport (view frame),
+        ///         ProjectWorld/Unproject (tile &lt;-&gt; screen), PlanetRadius, BiomeColor and the
+        ///         water/river colours.
+        ///
+        ///     RULE, restated because it has now cost real user-facing crashes twice: a consumer
+        ///     must require the FIRST generation THAT CANNOT PREDATE the members it uses. For
+        ///     anything in World/, that is 7 - NOT 6, even though the files existed at 6, because
+        ///     an early gen-6 build is not required to carry today's surface.</para>
+        ///
+        /// <para>8 = WorldSnapshot.Get's seed parameter is FIXED (2026-08-21, same session).
+        ///     NOT additive - this changes a signature AND the behaviour behind an existing
+        ///     name, so it bumps under the original rule.
+        ///       `Get(..., PlanetTile seed = default)` becomes `PlanetTile? seed = null`, and Get
+        ///       substitutes `center` when no seed is given. The old default was silently broken:
+        ///       PlanetTile.Valid is `tileId >= 0` and PlanetTile.Invalid is tileId -1, so
+        ///       `default(PlanetTile)` - tileId 0 - tested as VALID. Every caller that omitted the
+        ///       seed flood-filled from TILE 0, failed the window cull on its first iteration,
+        ///       enqueued nothing, and got back a texture still holding its WaterColor pre-fill.
+        ///       It presented as "the world map is blank" - an empty ocean that was really just
+        ///       the untouched buffer. Faction Menu's StagePane was never affected (it always
+        ///       passes an explicit seed); Ideology's spread plot and Quest Menu's location
+        ///       mini-map both were.
+        ///     Consumers of World/ must now require 8. Callers passing a PlanetTile still compile
+        ///     unchanged via the implicit nullable conversion, but the assembly signature moved,
+        ///     so every consumer needs a REBUILD.</para>
         /// </summary>
-        public const int Current = 6;
+        public const int Current = 8;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.

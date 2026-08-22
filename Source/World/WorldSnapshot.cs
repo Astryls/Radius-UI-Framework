@@ -76,6 +76,7 @@ namespace RadiusUI.Framework
         private int builtTile = -1;
         private float builtRange = -1f;
         private Vector3 builtEast;
+        private Vector2 builtWindow;
         private int builtPaintKey;
 
         public static readonly Color WaterColor = new Color(0.10f, 0.14f, 0.20f);
@@ -99,31 +100,43 @@ namespace RadiusUI.Framework
         }
 
         /// <summary>
-        /// Bake covering ±<paramref name="rangeWorld"/> world units around <paramref name="center"/>,
-        /// oriented by an EXPLICIT basis. The caller owns the basis so it can parallel-transport
-        /// it across re-centres - deriving it from a fixed world axis makes north swing as the
-        /// centre moves, which reads as the map rotating.
-        /// Cached: re-bakes only when centre, range or orientation changes.
+        /// Bake covering ±<paramref name="rangeWorld"/> world units, oriented by an EXPLICIT
+        /// basis. The caller owns the basis so it can parallel-transport it across re-centres -
+        /// deriving it from a fixed world axis makes north swing as the centre moves, which
+        /// reads as the map rotating.
+        ///
+        /// <paramref name="center"/> is the PROJECTION ORIGIN (where the tangent plane touches
+        /// the sphere); <paramref name="window"/> offsets the baked SQUARE within that plane,
+        /// in world units. Keeping these separate is what lets a caller pan without ever
+        /// re-projecting: moving the origin re-projects the whole world and the picture visibly
+        /// warps, whereas moving the window just slides which part of the same projection got
+        /// baked. Pass <paramref name="seed"/> as a tile near the window so the flood fill
+        /// starts inside it - seeding from a far-off origin stops at the first culled tile.
+        /// Defaults reproduce the original centred behaviour exactly.
+        /// Cached: re-bakes only when origin, range, orientation, paint or window changes.
         /// </summary>
         public Texture2D? Get(PlanetTile center, Vector3 east, Vector3 north, float rangeWorld,
-            TerritoryPaint? paint = null)
+            TerritoryPaint? paint = null, Vector2 window = default, PlanetTile? seed = null)
         {
             if (!center.Valid || Find.WorldGrid == null) return null;
             int paintKey = paint?.Key ?? 0;
             if (tex != null && builtTile == center.tileId
                 && Mathf.Abs(builtRange - rangeWorld) < 0.001f
                 && (builtEast - east).sqrMagnitude < 1e-8f
+                && (builtWindow - window).sqrMagnitude < 1e-6f
                 && builtPaintKey == paintKey)
                 return tex;
-            Build(center, east, north, rangeWorld, paint);
+            Build(center, east, north, rangeWorld, paint, window, seed ?? center);
             builtTile = center.tileId;
             builtRange = rangeWorld;
             builtEast = east;
+            builtWindow = window;
             builtPaintKey = paintKey;
             return tex;
         }
 
-        private void Build(PlanetTile center, Vector3 east, Vector3 north, float range, TerritoryPaint? paint)
+        private void Build(PlanetTile center, Vector3 east, Vector3 north, float range,
+            TerritoryPaint? paint, Vector2 window, PlanetTile start)
         {
             if (tex == null)
             {
@@ -146,10 +159,23 @@ namespace RadiusUI.Framework
             var px = buf!;
             for (int i = 0; i < px.Length; i++) px[i] = water;
 
+            // Start the flood fill inside the window, not at the projection origin: tiles
+            // outside the cull box stop propagation, so seeding from a distant origin would
+            // terminate immediately and bake nothing.
+            //
+            // The seed arrives already resolved (Get substitutes `center` when the caller
+            // passes none). It USED to be a `PlanetTile seed = default` parameter tested with
+            // `seed.Valid`, which was silently broken: PlanetTile.Valid is `tileId >= 0` and
+            // PlanetTile.Invalid is tileId -1, so `default(PlanetTile)` - tileId 0 - reads as
+            // VALID. Every caller that omitted the seed therefore flood-filled from TILE 0,
+            // which fails the window cull on its first iteration, enqueues nothing, and leaves
+            // the buffer as unbroken WaterColor. That is the "map is blank" bug: it looked like
+            // an empty ocean because it literally was the pre-fill. Only StagePane escaped it,
+            // because it always passes an explicit seed.
             var visited = new HashSet<int>();
             var queue = new Queue<PlanetTile>();
-            visited.Add(center);
-            queue.Enqueue(center);
+            visited.Add(start);
+            queue.Enqueue(start);
             int guard = 0;
             while (queue.Count > 0 && guard++ < 400000)
             {
@@ -162,12 +188,14 @@ namespace RadiusUI.Framework
 
                 Vector3 rel = tc - c;
                 float x = Vector3.Dot(rel, east), y = Vector3.Dot(rel, north);
-                if (x < -ex || x > ex || y < -ex || y > ex) continue;
+                if (x < window.x - ex || x > window.x + ex
+                    || y < window.y - ex || y > window.y + ex) continue;
 
                 NbBuf.Clear();
                 grid.GetTileNeighbors(t, NbBuf);
 
-                if (x >= -range && x <= range && y >= -range && y <= range && !grid[t].WaterCovered)
+                if (x >= window.x - range && x <= window.x + range
+                    && y >= window.y - range && y <= window.y + range && !grid[t].WaterCovered)
                 {
                     Color col = BiomeColor(grid[t].PrimaryBiome);
                     Hilliness hl = grid[t].hilliness;
@@ -210,8 +238,8 @@ namespace RadiusUI.Framework
                     {
                         // Whole-planet zoom: the polygon is sub-pixel, so skip the vertex
                         // fetch and scan fill entirely (hatching is meaningless at this size).
-                        int cxp = Mathf.RoundToInt(x * pxPerWorld + half);
-                        int cyp = Mathf.RoundToInt(y * pxPerWorld + half);
+                        int cxp = Mathf.RoundToInt((x - window.x) * pxPerWorld + half);
+                        int cyp = Mathf.RoundToInt((y - window.y) * pxPerWorld + half);
                         FillBlock(px, cxp, cyp, blockR, col32);
                     }
                     else
@@ -223,8 +251,8 @@ namespace RadiusUI.Framework
                         {
                             Vector3 vr = VertBuf[i] - c;
                             Poly[i] = new Vector2(
-                                Vector3.Dot(vr, east) * pxPerWorld + half,
-                                Vector3.Dot(vr, north) * pxPerWorld + half);
+                                (Vector3.Dot(vr, east) - window.x) * pxPerWorld + half,
+                                (Vector3.Dot(vr, north) - window.y) * pxPerWorld + half);
                         }
                         FillConvex(px, cnt, col32, alt32, hatch);
                     }
@@ -390,7 +418,11 @@ namespace RadiusUI.Framework
                 return;
             }
             north = n2.normalized;
-            east = Vector3.Cross(north, normal);   // consistent with north = cross(normal, east)
+            // MUST match Basis's handedness. Basis ends with `east = -east`, so its triple
+            // satisfies cross(normal, east) = -north; deriving east as cross(north, normal)
+            // returns the NEGATED vector and mirrors the map east-west on every re-centre.
+            // With normal (0,0,1): Basis gives east (-1,0,0), cross(north, normal) gives (1,0,0).
+            east = Vector3.Cross(normal, north);
         }
 
         /// <summary>
