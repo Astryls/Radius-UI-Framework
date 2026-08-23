@@ -140,8 +140,25 @@ namespace RadiusUI.Framework
         ///     Consumers of World/ must now require 8. Callers passing a PlanetTile still compile
         ///     unchanged via the implicit nullable conversion, but the assembly signature moved,
         ///     so every consumer needs a REBUILD.</para>
+        ///
+        /// <para>9 = RadiusFont.LabelItalic exists (2026-08-22, Radius UI - Health Tab session).
+        ///     ADDITIVE - nothing was touched and no value moved - and it bumps ANYWAY, because
+        ///     additive-inside-a-generation is exactly the hole that has now cost user-facing
+        ///     crashes THREE times (RadiusFont.Epoch inside 3, the World layer inside 6, this).
+        ///     A gen-8 framework built on 08-21 does not carry it, so a consumer asserting 8
+        ///     passes the guard and then throws
+        ///         MissingMethodException: Method not found: void RadiusFont.LabelItalic(...)
+        ///     from inside a draw loop. The rule has no exception for "small" or "purely
+        ///     additive": a consumer must require the FIRST generation THAT CANNOT PREDATE the
+        ///     members it uses, and for LabelItalic that is 9.
+        ///       Text/RadiusFont.cs : LabelItalic(Rect, string, GameFont, Color?, TextAnchor,
+        ///         bool) - the explicit-weight twin of LabelBold, in a real italic face. Only a
+        ///         DYNAMIC font resolves one; on a baked bitmap font StyleFor falls back to
+        ///         regular rather than a synthetic slant.
+        ///     Every consumer asserting 2-8 keeps passing unchanged (Require tests
+        ///     Current >= minimum), so this bump is free for the rest of the suite.</para>
         /// </summary>
-        public const int Current = 8;
+        public const int Current = 9;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
