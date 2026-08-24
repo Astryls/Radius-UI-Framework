@@ -45,6 +45,7 @@ namespace RadiusUI.Framework
             public static readonly RadiusIcon Prev = Reg("Action/Prev", IconTier.Glyph);
             public static readonly RadiusIcon Rename = Reg("Action/Rename", IconTier.Glyph);
             public static readonly RadiusIcon Resume = Reg("Action/Resume", IconTier.Glyph);
+            public static readonly RadiusIcon Search = Reg("Action/Search", IconTier.Glyph);
             public static readonly RadiusIcon Settings = Reg("Action/Settings", IconTier.Glyph);
             public static readonly RadiusIcon Snooze = Reg("Action/Snooze", IconTier.Glyph);
             public static readonly RadiusIcon Social = Reg("Action/Social", IconTier.Glyph);
@@ -146,6 +147,15 @@ namespace RadiusUI.Framework
             public static readonly RadiusIcon Raid = Reg("Event/Raid", IconTier.Glyph);
             public static readonly RadiusIcon Trade = Reg("Event/Trade", IconTier.Glyph);
             public static readonly RadiusIcon Visitor = Reg("Event/Visitor", IconTier.Glyph);
+        }
+
+        /// <summary>Gene-domain nouns - the gene itself, its container, its assembled form, and the archite capsule an archite gene consumes. Added generation 10 for Radius UI - Xenotypes; general-purpose.</summary>
+        public static class Gene
+        {
+            public static readonly RadiusIcon ArchiteCapsule = Reg("Gene/ArchiteCapsule", IconTier.Glyph);
+            public static readonly RadiusIcon Genepack = Reg("Gene/Genepack", IconTier.Glyph);
+            public static readonly RadiusIcon Helix = Reg("Gene/Helix", IconTier.Glyph);
+            public static readonly RadiusIcon Xenogerm = Reg("Gene/Xenogerm", IconTier.Glyph);
         }
 
         /// <summary>Health-domain nouns.</summary>

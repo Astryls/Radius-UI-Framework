@@ -157,8 +157,26 @@ namespace RadiusUI.Framework
         ///         regular rather than a synthetic slant.
         ///     Every consumer asserting 2-8 keeps passing unchanged (Require tests
         ///     Current >= minimum), so this bump is free for the rest of the suite.</para>
+        ///
+        /// <para>10 = the gene vocabulary (2026-08-23, Radius UI - Xenotypes session).
+        ///     PURELY ADDITIVE - nothing existing touched, no value moved, no member renamed -
+        ///     and it bumps anyway, for the reason generation 9 spells out.
+        ///       Tokens/Palette.Genes.cs : the gene-domain identity set. A four-step build-COST
+        ///         ramp (CostTrivial/CostLight/CostHeavy/CostArchite, plus the index-stable
+        ///         CostRamp array), the provenance pair Endogene/Xenogene, Archite, Inactive,
+        ///         and an 8-hue fallback ring with For(string categoryDefName) - a string, not a
+        ///         GeneCategoryDef, because §2 requires Tokens to depend on nothing.
+        ///         Three cost steps are numerically equal to Good, Over and Archo. They are NOT
+        ///         aliases of them: those names mean other things, and F8 rule 3 is exactly
+        ///         about what happens when a name is made to mean two things at once.
+        ///       Icons/IconSet.Glyphs.cs : a 19th category, Gene/ (Helix, Genepack, Xenogerm,
+        ///         ArchiteCapsule), plus Action/Search - the magnifier the library never had,
+        ///         which every search box in the suite had been hand-rolling. Tier 1, 128px,
+        ///         flat white, generated through gen_iconset.sh like every other accessor.
+        ///     Library goes 272 -> 277 files, 19 -> 20 categories. Every consumer asserting
+        ///     2-9 keeps passing unchanged.</para>
         /// </summary>
-        public const int Current = 9;
+        public const int Current = 10;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.

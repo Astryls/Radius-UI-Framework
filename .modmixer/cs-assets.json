@@ -271,7 +271,12 @@
     "RadiusUI/Weather/Sun",
     "RadiusUI/Weather/Thunder",
     "RadiusUI/Weather/Wind",
-    "RadiusUI/Weather/Wind2"
+    "RadiusUI/Weather/Wind2",
+    "RadiusUI/Action/Search",
+    "RadiusUI/Gene/ArchiteCapsule",
+    "RadiusUI/Gene/Genepack",
+    "RadiusUI/Gene/Helix",
+    "RadiusUI/Gene/Xenogerm"
   ],
   "audio": []
 }
