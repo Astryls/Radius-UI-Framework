@@ -61,15 +61,46 @@ namespace RadiusUI.Framework
         private const float MaxOrtho = 90f;
         private const int ThingScanPad = 3;     // pawns are grid-indexed at Position, drawn at DrawPos
 
+        /// <summary>
+        /// Default capture rate. NOT 60: a camera render is the single most expensive thing in
+        /// here, the subject is a few pawns walking, and 24 is the rate an audience has accepted
+        /// as "moving picture" for a century. The user's framework refresh multiplier scales the
+        /// interval on top, so the existing perf slider governs this too.
+        /// </summary>
+        private const float DefaultRefreshHz = 24f;
+
+        /// <summary>Seconds for the eased camera to close half the distance to its aim.</summary>
+        private const float EaseHalfLife = 0.13f;
+
+        /// <summary>Beyond this much movement the camera CUTS instead of gliding.</summary>
+        private const float SnapCells = 22f;
+
+        /// <summary>Aim changes smaller than this are ignored outright (anti-jitter).</summary>
+        private const float DeadZoneCells = 0.75f;
+
+        private const float MaxEaseStep = 0.25f;   // clamp dt across a stall / alt-tab
+
         private sealed class Feed
         {
             public Map? Map;
             public CellRect Focus;
             public float Aspect = 1f;
             public int Resolution = 224;
+            public float RefreshHz = DefaultRefreshHz;
             public RenderTexture? Rt;
             public int LastRequestFrame = -1;
             public bool Ready;
+
+            // ---- eased camera state ----
+            // The AIM is what the caller asked for; these are where the camera actually is.
+            // Keeping them apart is the whole of the stabilisation: a subject list whose
+            // bounding box pops by a few cells as pawns shuffle moves the aim, not the shot.
+            public bool Aimed;
+            public Vector3 CurCentre;
+            public float CurHalf = 10f;
+            public Vector3 AimCentre;
+            public float AimHalf = 10f;
+            public float LastRenderTime = -1f;
         }
 
         private static readonly Dictionary<string, Feed> feeds = new Dictionary<string, Feed>();
@@ -89,7 +120,10 @@ namespace RadiusUI.Framework
         /// </summary>
         /// <param name="key">Stable per-panel id, e.g. "RadiusUI.QuestMenu.Live".</param>
         /// <param name="aspect">width/height of the rect the texture will be drawn into.</param>
-        public static Texture? Request(string key, Map map, CellRect focus, float aspect, int resolution = 224)
+        /// <param name="refreshHz">Capture rate; 0 uses the default. Scaled by the user's
+        /// framework refresh multiplier either way.</param>
+        public static Texture? Request(string key, Map map, CellRect focus, float aspect,
+            int resolution = 224, float refreshHz = 0f)
         {
             if (string.IsNullOrEmpty(key) || map == null || focus.Area <= 0)
             {
@@ -100,12 +134,30 @@ namespace RadiusUI.Framework
                 f = new Feed();
                 feeds[key] = f;
             }
+            if (f.Map != map)
+            {
+                f.Aimed = false;   // different map: cut, never glide across a map change
+            }
             f.Map = map;
             f.Focus = focus.ClipInsideMap(map);
             f.Aspect = Mathf.Clamp(aspect, 0.2f, 6f);
             f.Resolution = Mathf.Clamp(resolution, MinResolution, MaxResolution);
+            f.RefreshHz = refreshHz > 0f ? Mathf.Clamp(refreshHz, 1f, 60f) : DefaultRefreshHz;
             f.LastRequestFrame = Time.frameCount;
             return f.Ready ? f.Rt : null;
+        }
+
+        /// <summary>
+        /// Cut rather than glide on the next capture. Call when the SUBJECT changes (a new
+        /// quest selected, a different pawn) - easing across an unrelated jump reads as the
+        /// camera flying over the map rather than as a new shot.
+        /// </summary>
+        public static void Cut(string key)
+        {
+            if (key != null && feeds.TryGetValue(key, out Feed f))
+            {
+                f.Aimed = false;
+            }
         }
 
         /// <summary>Drop a feed and free its texture now. Safe to call for an unknown key.</summary>
@@ -189,12 +241,56 @@ namespace RadiusUI.Framework
                 return;
             }
 
-            Vector3 centre = f.Focus.CenterVector3;
+            // ---- aim ----
             // Orthographic size is a HALF-HEIGHT in world units (= cells). Derive it from the
             // focus rect and the target aspect so the subject is never cropped and never
             // stretched, then leave a little air around it.
-            float half = Mathf.Max(f.Focus.Height * 0.5f, f.Focus.Width * 0.5f / f.Aspect);
-            half = Mathf.Clamp(half * 1.08f, MinOrtho, MaxOrtho);
+            Vector3 aimCentre = f.Focus.CenterVector3;
+            float aimHalf = Mathf.Clamp(
+                Mathf.Max(f.Focus.Height * 0.5f, f.Focus.Width * 0.5f / f.Aspect) * 1.08f,
+                MinOrtho, MaxOrtho);
+
+            // Dead zone: a bounding box that pops a cell as a pawn steps is not a new shot.
+            if (f.Aimed
+                && Mathf.Abs(aimCentre.x - f.AimCentre.x) < DeadZoneCells
+                && Mathf.Abs(aimCentre.z - f.AimCentre.z) < DeadZoneCells
+                && Mathf.Abs(aimHalf - f.AimHalf) < DeadZoneCells)
+            {
+                aimCentre = f.AimCentre;
+                aimHalf = f.AimHalf;
+            }
+            f.AimCentre = aimCentre;
+            f.AimHalf = aimHalf;
+
+            // ---- rate gate ----
+            float now = Time.realtimeSinceStartup;
+            float interval = 1f / f.RefreshHz * Mathf.Max(0.1f, RadiusTheme.RefreshMult);
+            float dt = f.LastRenderTime < 0f ? 0f : now - f.LastRenderTime;
+            if (f.Ready && f.Aimed && dt < interval)
+            {
+                return;   // hold the last capture; it is still on screen and still correct
+            }
+            f.LastRenderTime = now;
+
+            // ---- ease ----
+            // Exponential smoothing on the ELAPSED time between captures, so the glide looks
+            // the same at 24 Hz as at 60 and does not change speed with the refresh setting.
+            float travel = (aimCentre - f.CurCentre).magnitude;
+            if (!f.Aimed || travel > SnapCells)
+            {
+                f.CurCentre = aimCentre;
+                f.CurHalf = aimHalf;
+                f.Aimed = true;
+            }
+            else if (dt > 0f)
+            {
+                float k = 1f - Mathf.Pow(0.5f, Mathf.Min(dt, MaxEaseStep) / EaseHalfLife);
+                f.CurCentre = Vector3.Lerp(f.CurCentre, aimCentre, k);
+                f.CurHalf = Mathf.Lerp(f.CurHalf, aimHalf, k);
+            }
+
+            Vector3 centre = f.CurCentre;
+            float half = f.CurHalf;
 
             // The cells the capture will actually see - which is what has to be submitted,
             // not merely the focus rect.
@@ -354,7 +450,15 @@ namespace RadiusUI.Framework
                 return f.Rt;
             }
             FreeRt(f);
-            var rt = new RenderTexture(w, h, 16) { name = "RadiusUI_MapCapture", antiAliasing = 1 };
+            var rt = new RenderTexture(w, h, 16)
+            {
+                name = "RadiusUI_MapCapture",
+                antiAliasing = 1,
+                // Bilinear + clamp: the feed is drawn at roughly its native size, and Point
+                // sampling made the held frames between captures look harsher than the map.
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp
+            };
             rt.Create();
             f.Rt = rt;
             f.Ready = false;

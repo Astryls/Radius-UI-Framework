@@ -191,8 +191,26 @@ namespace RadiusUI.Framework
         ///     `&lt;li Class="RadiusUI.Framework.MapCaptureDriver" /&gt;`. It holds no state and
         ///     saves nothing, but removing the framework from an existing save will log the
         ///     usual "could not find class" line for it. Consumers of Map/ must require 11.</para>
+        ///
+        /// <para>12 = rounded IMAGES, and a smoothed/rate-limited MapCapture (2026-08-26, same
+        ///     session, straight off the first in-game look at the live view).
+        ///     ADDITIVE in the members it adds, but MapCapture.Request GAINED A PARAMETER, so
+        ///     the assembly signature moved and every consumer needs a rebuild - which is a
+        ///     bump under the original rule, not merely the gen-9 "assert it exists" rule.
+        ///       Chrome/CardChrome.cs : CardChrome.Image(Rect, Texture, radius, tint) - a real
+        ///         texture clipped to the suite's corner radius. Every texture the suite draws
+        ///         (baked world maps, the faction atlas, the live map feed) was poking square
+        ///         corners out through a rounded outline, because plain GUI.DrawTexture has no
+        ///         radius. Note it must use StretchToFill: Unity's rounded overload silently
+        ///         drops the radii on the ScaleAndCrop/ScaleToFit paths.
+        ///       Map/MapCapture.cs : Request gains an optional refreshHz; new Cut(key). The
+        ///         capture now runs at ~24 Hz (scaled by RadiusTheme.RefreshMult) instead of
+        ///         every frame, and the camera EASES toward its aim with a dead zone and a
+        ///         snap threshold, so a subject group whose bounding box pops as pawns shuffle
+        ///         no longer jerks the shot.
+        ///     Consumers of Map/ must now require 12.</para>
         /// </summary>
-        public const int Current = 11;
+        public const int Current = 12;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.

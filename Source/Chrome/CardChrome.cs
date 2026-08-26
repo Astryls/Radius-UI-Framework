@@ -173,7 +173,70 @@ namespace RadiusUI.Framework
                 (corners & Corner.BottomLeft)  != 0 ? radius : 0f);
         }
 
-        // ------------------------------------------------------------------ outlines
+        /// <summary>
+        /// Rounded IMAGE plate: a real texture (a baked world map, a faction atlas, a live map
+        /// camera feed) drawn so it sits INSIDE the suite's corner radius, instead of poking
+        /// square corners out through a rounded outline.
+        ///
+        /// <para>WHY THIS IS NOT Unity's rounded overload. That overload only honours
+        /// <c>borderRadiuses</c> on the direct blit path: ScaleAndCrop and ScaleToFit route
+        /// through an internal BeginGroup + recursive draw that discards the radii silently,
+        /// so it can only round a texture that is ALREADY at the rect's exact aspect. Half the
+        /// suite's image sources are square bakes shown in wide slots (WorldSnapshot is a
+        /// square Texture2D; the quest location card is about 2:1), and stretching those to fit
+        /// a rounded blit would distort the map rather than crop it.</para>
+        ///
+        /// <para>So the image is drawn with whatever <paramref name="scale"/> is correct for it
+        /// (ScaleAndCrop by default - crop, never squash), and the corners are then MASKED with
+        /// <paramref name="backdrop"/>, the colour of the plate the image is sitting on. Works
+        /// for any aspect, any scale mode, and does not depend on the Unity overload at all.</para>
+        /// </summary>
+        public static void Image(Rect rect, Texture image, float radius, Color backdrop,
+            ScaleMode scale = ScaleMode.ScaleAndCrop)
+        {
+            if (!RepaintNow || image == null)
+            {
+                return;
+            }
+            GUI.DrawTexture(rect, image, scale);
+            MaskCorners(rect, backdrop, radius);
+        }
+
+        /// <summary>
+        /// Paint the four square corners of <paramref name="rect"/> out in
+        /// <paramref name="backdrop"/>, leaving a rounded shape behind. The general way to fit
+        /// ANY square-cornered content (a texture, a clipped group, another mod's draw) into
+        /// the suite's silhouette.
+        ///
+        /// <para>One shared quarter-disc mask, drawn four times through texCoords flips, so
+        /// this is four draw calls off one 64px texture rather than a per-radius bake.</para>
+        /// </summary>
+        public static void MaskCorners(Rect rect, Color backdrop, float radius)
+        {
+            if (!RepaintNow)
+            {
+                return;
+            }
+            float r = EffectiveRadius(rect, radius);
+            if (r < 0.5f)
+            {
+                return;
+            }
+            Texture2D mask = CornerMask();
+            Color prev = GUI.color;
+            GUI.color = backdrop;
+            // texCoords flips put the mask's opaque wedge on the correct corner. The wedge
+            // lives at the texture's bottom-left, so bottom-left is the unflipped case.
+            GUI.DrawTextureWithTexCoords(new Rect(rect.x, rect.yMax - r, r, r), mask,
+                new Rect(0f, 0f, 1f, 1f));
+            GUI.DrawTextureWithTexCoords(new Rect(rect.x, rect.y, r, r), mask,
+                new Rect(0f, 1f, 1f, -1f));
+            GUI.DrawTextureWithTexCoords(new Rect(rect.xMax - r, rect.yMax - r, r, r), mask,
+                new Rect(1f, 0f, -1f, 1f));
+            GUI.DrawTextureWithTexCoords(new Rect(rect.xMax - r, rect.y, r, r), mask,
+                new Rect(1f, 1f, -1f, -1f));
+            GUI.color = prev;
+        }
 
         /// <summary>
         /// Rounded outline (frame only, interior untouched). Standard hairline is width 1
@@ -255,6 +318,45 @@ namespace RadiusUI.Framework
         }
 
         // ------------------------------------------------------------------ internals
+
+        // The quarter-disc corner mask, built once. Opaque OUTSIDE the disc (the bit that gets
+        // painted over with the backdrop) and transparent inside it, with a one-pixel feather
+        // so the arc is not stair-stepped. The wedge sits at the texture's bottom-left corner;
+        // MaskCorners flips texCoords to reach the other three.
+        private const int CornerTexSize = 64;
+        private static Texture2D? cornerTex;
+
+        private static Texture2D CornerMask()
+        {
+            if (cornerTex != null)
+            {
+                return cornerTex;   // Unity's == also catches a destroyed texture, so this rebuilds
+            }
+            var t = new Texture2D(CornerTexSize, CornerTexSize, TextureFormat.RGBA32, false)
+            {
+                name = "RadiusUI_CornerMask",
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp,
+                hideFlags = HideFlags.HideAndDontSave
+            };
+            var px = new Color32[CornerTexSize * CornerTexSize];
+            const float r = CornerTexSize;
+            for (int y = 0; y < CornerTexSize; y++)
+            {
+                for (int x = 0; x < CornerTexSize; x++)
+                {
+                    float dx = x + 0.5f - r;
+                    float dy = y + 0.5f - r;
+                    float d = Mathf.Sqrt(dx * dx + dy * dy);
+                    float a = Mathf.Clamp01(d - r + 0.5f);
+                    px[y * CornerTexSize + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+                }
+            }
+            t.SetPixels32(px);
+            t.Apply(updateMipmaps: false, makeNoLongerReadable: false);
+            cornerTex = t;
+            return t;
+        }
 
         private static float EffectiveRadius(Rect rect, float baseRadius)
         {
