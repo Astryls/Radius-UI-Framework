@@ -175,8 +175,24 @@ namespace RadiusUI.Framework
         ///         flat white, generated through gen_iconset.sh like every other accessor.
         ///     Library goes 272 -> 277 files, 19 -> 20 categories. Every consumer asserting
         ///     2-9 keeps passing unchanged.</para>
+        ///
+        /// <para>11 = the Map layer lands (2026-08-26, Radius UI - Quest Menu session).
+        ///     PURELY ADDITIVE - nothing existing touched, no value moved - and it bumps anyway,
+        ///     for the reason generation 9 spells out.
+        ///       Map/MapCapture.cs : MapCapture (Request / Release / IsLive) plus the
+        ///         MapCaptureDriver MapComponent that pumps it. A live camera feed of a piece of
+        ///         the playing map, rendered into a RenderTexture any panel can draw. Promoted
+        ///         out of Radius UI - Colonist Bar's LiveViewManager, where the same machinery
+        ///         was welded to per-pawn portraits; this is the general form, and it also fixes
+        ///         the limitation that version lives with - it force-submits the terrain sections
+        ///         and things the engine culled away, so a feed works wherever the player's
+        ///         camera happens to be pointing rather than only inside the current view.
+        ///     NOTE: this generation adds a MapComponent, so it appears in save files as
+        ///     `&lt;li Class="RadiusUI.Framework.MapCaptureDriver" /&gt;`. It holds no state and
+        ///     saves nothing, but removing the framework from an existing save will log the
+        ///     usual "could not find class" line for it. Consumers of Map/ must require 11.</para>
         /// </summary>
-        public const int Current = 10;
+        public const int Current = 11;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
