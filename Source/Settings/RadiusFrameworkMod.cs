@@ -106,12 +106,14 @@ namespace RadiusUI.Framework
             y += 44f + Metrics.Space16;
 
             // ---- background refresh --------------------------------------------------
-            // The one suite-wide performance lever (Throttle.EveryScaled). Shipped scribed but
-            // UI-less at generation 2, which made it a config-file-only setting - §8 #1/#6
-            // violations. The label carries the live value; the tooltip owns the explanation.
+            // The one suite-wide performance lever (Throttle.EveryScaled), and as of this
+            // generation the ONLY one: Mission Control used to carry a duplicate slider with
+            // the same 0.5-4 range, which would have compounded with this one (x4 and x4 = x16)
+            // once it started reading RadiusTheme.RefreshMult. It now defers to this setting.
+            // The label states the meaning in words - see RefreshLabel for why the bare
+            // multiplier is never shown.
             var refreshRect = new Rect(inRect.x, y, inRect.width, Metrics.RowText);
-            Widgets.Label(refreshRect,
-                "RadiusUI.Settings.Refresh".Translate(settings.refreshMult.ToString("0.0") + "x"));
+            Widgets.Label(refreshRect, RefreshLabel(settings.refreshMult));
             TooltipHandler.TipRegion(refreshRect, "RadiusUI.Settings.RefreshTip".Translate());
             y += Metrics.RowText;
 
@@ -158,6 +160,42 @@ namespace RadiusUI.Framework
         private static string AccentName(int i)
         {
             return ("RadiusUI.Accent." + Palette.AccentNames[i]).Translate();
+        }
+
+        /// <summary>
+        /// Plain-language description of the background-refresh multiplier.
+        ///
+        /// THE RAW MULTIPLIER MUST NEVER BE SHOWN ON ITS OWN. It scales the INTERVAL between
+        /// background gathers, so "4.0x" reads as "four times as often" when it actually means
+        /// a QUARTER of the rate - the number states the exact opposite of what it does. The
+        /// old label was literally "Background refresh: 4.0x" with a tooltip that had to say
+        /// "higher values refresh less often", i.e. the tooltip existed to contradict the
+        /// number next to it.
+        ///
+        /// So the label now carries a word that moves in the SAME direction as the slider
+        /// (Fresher -> Default -> Cheaper -> Cheapest) plus an explicit rate phrase stated as
+        /// a frequency ("half as often"). Both halves decrease as the slider moves right, so
+        /// neither can be read backwards.
+        /// </summary>
+        private static string RefreshLabel(float mult)
+        {
+            string word;
+            if (mult <= 0.8f) word = "RadiusUI.Settings.RefreshFresher".Translate();
+            else if (mult < 1.25f) word = "RadiusUI.Settings.RefreshDefault".Translate();
+            else if (mult < 2.5f) word = "RadiusUI.Settings.RefreshCheaper".Translate();
+            else word = "RadiusUI.Settings.RefreshCheapest".Translate();
+
+            // Named phrases for the round values the slider lands on; a computed percentage
+            // covers the 0.25 steps in between (roundTo on the slider below).
+            string rate;
+            if (Mathf.Approximately(mult, 1f)) rate = "RadiusUI.Settings.RefreshStandard".Translate();
+            else if (Mathf.Approximately(mult, 0.5f)) rate = "RadiusUI.Settings.RefreshTwice".Translate();
+            else if (Mathf.Approximately(mult, 2f)) rate = "RadiusUI.Settings.RefreshHalf".Translate();
+            else if (Mathf.Approximately(mult, 4f)) rate = "RadiusUI.Settings.RefreshQuarter".Translate();
+            else rate = "RadiusUI.Settings.RefreshPct".Translate(
+                Mathf.RoundToInt(100f / Mathf.Max(0.01f, mult)));
+
+            return "RadiusUI.Settings.Refresh".Translate(word, rate);
         }
     }
 }

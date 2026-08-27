@@ -25,8 +25,17 @@
   <RadiusUI.Settings.ItalicTip>Draw Radius UI text in italic.</RadiusUI.Settings.ItalicTip>
   <RadiusUI.Settings.Roundness>Corner roundness: {0}</RadiusUI.Settings.Roundness>
   <RadiusUI.Settings.RoundnessTip>How round the corners of cards and panels are. Set it to zero for square corners.</RadiusUI.Settings.RoundnessTip>
-  <RadiusUI.Settings.Refresh>Background refresh: {0}</RadiusUI.Settings.Refresh>
-  <RadiusUI.Settings.RefreshTip>How often Radius UI mods refresh background data like colony vitals and conditions. Higher values refresh less often and cost less frame time, which helps on a large colony. Readouts you are actively watching are not affected.</RadiusUI.Settings.RefreshTip>
+  <RadiusUI.Settings.Refresh>Background refresh: {0} ({1})</RadiusUI.Settings.Refresh>
+  <RadiusUI.Settings.RefreshFresher>Fresher</RadiusUI.Settings.RefreshFresher>
+  <RadiusUI.Settings.RefreshDefault>Default</RadiusUI.Settings.RefreshDefault>
+  <RadiusUI.Settings.RefreshCheaper>Cheaper</RadiusUI.Settings.RefreshCheaper>
+  <RadiusUI.Settings.RefreshCheapest>Cheapest</RadiusUI.Settings.RefreshCheapest>
+  <RadiusUI.Settings.RefreshStandard>standard rate</RadiusUI.Settings.RefreshStandard>
+  <RadiusUI.Settings.RefreshTwice>twice as often</RadiusUI.Settings.RefreshTwice>
+  <RadiusUI.Settings.RefreshHalf>half as often</RadiusUI.Settings.RefreshHalf>
+  <RadiusUI.Settings.RefreshQuarter>quarter as often</RadiusUI.Settings.RefreshQuarter>
+  <RadiusUI.Settings.RefreshPct>{0}% as often</RadiusUI.Settings.RefreshPct>
+  <RadiusUI.Settings.RefreshTip>How often Radius UI mods resample background data such as colony vitals and conditions. Drag right to resample less often and spend less frame time, which helps on a large colony; drag left for fresher numbers. Drawing stays smooth either way, and readouts you are actively watching are not affected.</RadiusUI.Settings.RefreshTip>
   <RadiusUI.Settings.Reset>Reset to defaults</RadiusUI.Settings.Reset>
 
   <!-- Widgets -->
