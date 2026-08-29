@@ -231,8 +231,17 @@ namespace RadiusUI.Framework
         ///         consumer of the altitude cross-section must require 13.
         ///     Every consumer asserting 2-12 keeps passing unchanged (Require tests
         ///     Current &gt;= minimum), so this bump is free for the rest of the suite.</para>
+        ///
+        /// <para>14 = the row radius gets a name (2026-08-27, Radius UI - Bio Tab session).
+        ///     PURELY ADDITIVE - one new const in a new partial file - and it bumps anyway,
+        ///     for the reason generation 9 spells out.
+        ///       Tokens/Metrics.Radii.cs : Metrics.RadiusRow = 10f. The suite's row radius has
+        ///         always been 10 (Spatial.RowPlate bakes it), but it was never NAMED, so a
+        ///         consumer drawing a row through CardChrome had to type a literal. Sits
+        ///         between RadiusChip (8) and RadiusCard (12).
+        ///     Every consumer asserting 2-13 keeps passing unchanged.</para>
         /// </summary>
-        public const int Current = 13;
+        public const int Current = 14;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
