@@ -60,7 +60,17 @@ namespace RadiusUI.Framework
     /// BASE radii which are multiplied by <see cref="RadiusTheme.RadiusScale"/> internally.
     /// If the rounded overload is unavailable at runtime, everything degrades to square
     /// fills once, with a single warning.
+    ///
+    /// <para>Carries <c>[StaticConstructorOnStartup]</c> because of the static
+    /// <c>cornerTex</c> field below: RimWorld's startup reflection scan flags any type with a
+    /// static <c>Texture2D</c> and logs "probably needs a StaticConstructorOnStartup
+    /// attribute" into every player's log. The attribute alone silences it - no static
+    /// constructor is required, and the lazy build in <c>CornerTex()</c> is unchanged. The
+    /// warning is attributed to [RimWorld] rather than to us, which is why it survived from
+    /// gen 12 to gen 13 unnoticed. Same reason <see cref="Spatial"/> and
+    /// <c>FlatScroll</c> carry it.</para>
     /// </summary>
+    [StaticConstructorOnStartup]
     public static class CardChrome
     {
         /// <summary>Latch: flips false forever if the rounded GUI.DrawTexture overload throws.</summary>
