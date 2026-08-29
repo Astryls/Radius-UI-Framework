@@ -209,8 +209,30 @@ namespace RadiusUI.Framework
         ///         snap threshold, so a subject group whose bounding box pops as pawns shuffle
         ///         no longer jerks the shot.
         ///     Consumers of Map/ must now require 12.</para>
+        ///
+        /// <para>13 = the life vocabulary, and World/ becomes fully assertable (2026-08-27,
+        ///     Radius UI - Bio Tab session). PURELY ADDITIVE - nothing existing touched, no
+        ///     value moved, no member renamed - and it bumps anyway, for the reason generation
+        ///     9 spells out.
+        ///       Tokens/Palette.Life.cs : the life-moment identity set. Ten family identities
+        ///         (Love, Family, Violence, Loss, Craft, Learning, Faith, Journey, Wonder,
+        ///         Vice), the index-stable Families array, and an 8-hue fallback ring behind
+        ///         For(string familyId) - a string, not a def, because §2 requires Tokens to
+        ///         depend on nothing. Every hue is chosen clear of Good, Warn and Bad so a
+        ///         moment family can never be misread as a severity: Violence is GUNMETAL and
+        ///         not red, permanently and on purpose. Era is deliberately NOT defined here -
+        ///         a chapter is a position in time, not a category, so it uses the existing
+        ///         neutral text ramp with the accent reserved for "now".
+        ///       World/OrbitalSection.cs : NAMED, not added. OrbitalSection and OrbitalItem
+        ///         have shipped in the assembly since generation 12 but appeared in no
+        ///         generation's history, so no consumer could assert them - the identical hole
+        ///         that shipped MissingMethodException to users twice already (RadiusFont.Epoch
+        ///         landing inside 3, and the whole World/ layer being unnameable at 6). A
+        ///         consumer of the altitude cross-section must require 13.
+        ///     Every consumer asserting 2-12 keeps passing unchanged (Require tests
+        ///     Current &gt;= minimum), so this bump is free for the rest of the suite.</para>
         /// </summary>
-        public const int Current = 12;
+        public const int Current = 13;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
