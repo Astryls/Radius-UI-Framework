@@ -44,6 +44,19 @@ namespace RadiusUI.Framework
         /// depend on tinting it, and the framework has no standing to forbid that.
         /// </summary>
         Foreign = 3,
+
+        /// <summary>
+        /// Saturated flat-colour art in the emoji style (135 files). Its colour IS the icon,
+        /// so it takes alpha only - exactly like <see cref="Illustration"/>, but named apart
+        /// because the reason differs and the sets are maintained separately.
+        /// <para>This tier is what makes the colour half of the library safe. Tinting is
+        /// applied by MULTIPLY, so a caller passing <c>Palette.TextDim</c> to a saturated icon
+        /// would otherwise get mud - and a caller passing <c>Palette.InkOnAccent</c>
+        /// (which is <c>Surface0</c>, near-black) would get a black smudge. Routing these
+        /// through alpha-only means an unaudited tint call site degrades to "draws at full
+        /// colour, still dims correctly" instead of breaking.</para>
+        /// </summary>
+        Emoji = 4,
     }
 
     /// <summary>
@@ -94,7 +107,7 @@ namespace RadiusUI.Framework
         /// for example to decide that the state colour must go somewhere else on the row.</para>
         /// </summary>
         public Color Resolve(Color requested) =>
-            Tier == IconTier.Illustration || Tier == IconTier.Marker
+            Tier == IconTier.Illustration || Tier == IconTier.Marker || Tier == IconTier.Emoji
                 ? new Color(1f, 1f, 1f, requested.a)
                 : requested;
 

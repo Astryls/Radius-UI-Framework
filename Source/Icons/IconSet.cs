@@ -60,6 +60,15 @@ namespace RadiusUI.Framework
         /// </summary>
         internal static RadiusIcon Reg(string path, IconTier tier)
         {
+            // Colour art draws alpha-only. Applied here rather than in the generated accessor
+            // tables so the treatment survives a gen_iconset.sh regeneration, and so Get()'s
+            // prefix-inferred tier is corrected on the same path. Only Glyph is upgraded:
+            // Illustration / Marker / Foreign already refuse or already own their tint.
+            if (tier == IconTier.Glyph && EmojiPaths.Contains(path))
+            {
+                tier = IconTier.Emoji;
+            }
+
             Texture2D? tex = ContentFinder<Texture2D>.Get(Root + path, reportFailure: false);
             if (tex == null && warnedMissing.Add(path))
             {
