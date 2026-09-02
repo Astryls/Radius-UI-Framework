@@ -240,8 +240,23 @@ namespace RadiusUI.Framework
         ///         consumer drawing a row through CardChrome had to type a literal. Sits
         ///         between RadiusChip (8) and RadiusCard (12).
         ///     Every consumer asserting 2-13 keeps passing unchanged.</para>
+        ///
+        /// <para>15 = the policy vocabulary and the tint triad (2026-08-28, Radius UI -
+        ///     Policies session). PURELY ADDITIVE - two new partial files and one new struct;
+        ///     nothing renamed, no value moved - and it bumps anyway, for the reason
+        ///     generation 9 spells out.
+        ///       Tokens/Palette.Policies.cs : the five policy-domain identities (Apparel,
+        ///         Food, Drugs, Reading, Medical) plus an 8-hue fallback ring behind
+        ///         For(string domainId), and Policies.Kit - four neutral steps for flat
+        ///         stamped metalware. Deliberately NOT drawn from Palette.Health or the
+        ///         semantic ramp; see that file's header.
+        ///       Tokens/Palette.Tint.cs : TintOf(hue) -> TintSet (fill .15, edge .34, ink
+        ///         lifted .45), the flat style's state-chip triad named once instead of
+        ///         hand-written per hue. Alphas are Adaptive Work Priorities' own, unchanged,
+        ///         so no existing surface moves.
+        ///     Every consumer asserting 2-14 keeps passing unchanged.</para>
         /// </summary>
-        public const int Current = 14;
+        public const int Current = 15;
 
         /// <summary>
         /// Assert at startup that this framework is new enough for <paramref name="consumer"/>.
